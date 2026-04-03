@@ -163,7 +163,7 @@
 <div class="container">
   <header>
     <h1>Submit</h1>
-    <p>Upload a photo or video and tag the person</p>
+    <p>Upload a photo or video and tag the people in it</p>
   </header>
 
   <div class="card" id="mainCard">
@@ -186,7 +186,7 @@
 
     <!-- Nickname Picker -->
     <div id="nicknameSection">
-      <div class="section-label">Select Person</div>
+      <div class="section-label">Select People (pick all that apply)</div>
       <div class="nickname-grid" id="nicknameGrid"></div>
     </div>
 
@@ -241,7 +241,7 @@
   ];
 
   let selectedFile = null;
-  let selectedNick = null;
+  let selectedNicks = []; // supports multiple selections
   let fileType     = null; // 'image' or 'video'
 
   // Build nickname buttons
@@ -251,9 +251,14 @@
     btn.className = 'nick-btn';
     btn.textContent = name;
     btn.onclick = () => {
-      document.querySelectorAll('.nick-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      selectedNick = name;
+      // Toggle selection
+      if (selectedNicks.includes(name)) {
+        selectedNicks = selectedNicks.filter(n => n !== name);
+        btn.classList.remove('selected');
+      } else {
+        selectedNicks.push(name);
+        btn.classList.add('selected');
+      }
       checkReady();
     };
     grid.appendChild(btn);
@@ -293,7 +298,7 @@
   }
 
   function checkReady() {
-    document.getElementById('submitBtn').disabled = !(selectedFile && selectedNick);
+    document.getElementById('submitBtn').disabled = !(selectedFile && selectedNicks.length > 0);
   }
 
   window.resetUpload = function() {
@@ -307,7 +312,7 @@
   };
 
   window.resetAll = function() {
-    selectedNick = null;
+    selectedNicks = [];
     document.querySelectorAll('.nick-btn').forEach(b => b.classList.remove('selected'));
     document.getElementById('successScreen').classList.remove('visible');
     document.getElementById('nicknameSection').style.display = '';
@@ -317,7 +322,7 @@
   };
 
   window.handleSubmit = async function() {
-    if (!selectedFile || !selectedNick) return;
+    if (!selectedFile || selectedNicks.length === 0) return;
 
     const btn = document.getElementById('submitBtn');
     const progressWrap = document.getElementById('progressWrap');
@@ -362,14 +367,16 @@
       progressLabel.textContent = 'Saving...';
       progressFill.style.width = '100%';
 
-      // Save to Firestore
-      await addDoc(collection(db, 'submissions'), {
-        mediaUrl,
-        fileType,
-        nickname: selectedNick,
-        status: 'pending',
-        createdAt: serverTimestamp()
-      });
+      // Save to Firestore - one doc per selected nickname
+      await Promise.all(selectedNicks.map(nickname =>
+        addDoc(collection(db, 'submissions'), {
+          mediaUrl,
+          fileType,
+          nickname,
+          status: 'pending',
+          createdAt: serverTimestamp()
+        })
+      ));
 
       // Show success
       document.getElementById('nicknameSection').style.display = 'none';
@@ -389,4 +396,5 @@
   };
 </script>
 </body>
-</html>
+  </html>
+  
