@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gallery Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0c0c0c; color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh; padding: 2rem 1rem 3rem;
+    }
+    h1 {
+      font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800;
+      text-align: center; margin-bottom: 0.3rem;
+      background: linear-gradient(135deg, #fff, #aaa);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      text-align: center; color: rgba(255,255,255,0.35);
+      font-size: 0.85rem; margin-bottom: 2rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.9rem; max-width: 600px; margin: 0 auto;
+    }
+    .person-card {
+      background: #1a1a1a; border: 1.5px solid #2a2a2a;
+      border-radius: 16px; padding: 1.2rem 0.8rem;
+      text-align: center; text-decoration: none; color: #fff;
+      transition: border-color 0.2s, transform 0.2s, background 0.2s;
+      display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+    }
+    .person-card:hover {
+      border-color: rgba(255,255,255,0.4);
+      background: #222; transform: translateY(-3px);
+    }
+    .avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: linear-gradient(135deg, #7c6cfc, #fc6c8f);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800;
+      color: #fff; flex-shrink: 0;
+    }
+    .person-name {
+      font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700;
+      line-height: 1.2;
+    }
+    .arrow {
+      font-size: 0.75rem; color: rgba(255,255,255,0.3);
+    }
+  </style>
+</head>
+<body>
+  <h1>📸 Gallery</h1>
+  <p class="subtitle">Select a person to view their photos</p>
+  <div class="grid">
+    <a class="person-card" href="gallery-dyanjith.html">
+      <div class="avatar">D</div>
+      <div class="person-name">Dyanjith</div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="person-card" href="gallery-amalnath.html">
+      <div class="avatar">A</div>
+      <div class="person-name">Amalnath</div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="person-card" href="gallery-sreenand.html">
+      <div class="avatar">S</div>
+      <div class="person-name">Sreenand</div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="person-card" href="gallery-mibsam.html">
+      <div class="avatar">M</div>
+      <div class="person-name">Mibsam</div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="person-card" href="gallery-sidharth.html">
+      <div class="avatar">S</div>
+      <div class="person-name">Sidharth</div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="person-card" href="gallery-anunand.html">
+      <div class="avatar">A</div>
+      <div class="person-name">Anunand</div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="person-card" href="gallery-sarang.html">
+      <div class="avatar">S</div>
+      <div class="person-name">Sarang</div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="person-card" href="gallery-aadish.html">
+      <div class="avatar">A</div>
+      <div class="person-name">Aadish</div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="person-card" href="gallery-amalraj.html">
+      <div class="avatar">A</div>
+      <div class="person-name">AmalRaj</div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="person-card" href="gallery-navajoth.html">
+      <div class="avatar">N</div>
+      <div class="person-name">Navajoth</div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="person-card" href="gallery-nived.html">
+      <div class="avatar">N</div>
+      <div class="person-name">Nived</div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="person-card" href="gallery-chinmay.html">
+      <div class="avatar">C</div>
+      <div class="person-name">Chinmay</div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="person-card" href="gallery-arjun.html">
+      <div class="avatar">A</div>
+      <div class="person-name">Arjun</div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="person-card" href="gallery-adikrishna.html">
+      <div class="avatar">A</div>
+      <div class="person-name">Adikrishna</div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="person-card" href="gallery-devanand.html">
+      <div class="avatar">D</div>
+      <div class="person-name">Devanand</div>
+      <div class="arrow">→</div>
+    </a>
+    <a class="person-card" href="gallery-nandhukrishna.html">
+      <div class="avatar">N</div>
+      <div class="person-name">NandhuKrishna</div>
+      <div class="arrow">→</div>
+    </a>
+  </div>
+</body>
+</html>

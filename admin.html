@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #c9c9c9;
+      font-family: 'Nunito', sans-serif;
+      min-height: 100vh;
+      padding: 0 0 4rem;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #111;
+      padding: 1.4rem 1.2rem 1rem;
+      text-align: left;
+    }
+
+    /* Feed — stacked cards */
+    .feed {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 0 0.8rem;
+    }
+
+    /* Card */
+    .card {
+      background: #c9c9c9;
+      border: 3px solid #111;
+      border-radius: 28px;
+      width: 100%;
+      max-width: 440px;
+      overflow: hidden;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    /* Photo fills the top of the card */
+    .card img {
+      width: 100%;
+      max-height: 310px;
+      object-fit: cover;
+      display: block;
+      border-radius: 0;
+    }
+
+    /* Name + buttons inside card */
+    .card-body {
+      padding: 0.7rem 1rem 0.9rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .card-name {
+      font-size: 1rem;
+      font-weight: 900;
+      color: #111;
+      text-align: center;
+    }
+
+    .card-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+      width: 100%;
+    }
+
+    .btn {
+      padding: 0.65rem 0.5rem;
+      border-radius: 14px;
+      border: 2.5px solid #111;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.12s, opacity 0.15s;
+    }
+
+    .btn:hover:not(:disabled) { transform: scale(1.03); }
+    .btn:active:not(:disabled) { transform: scale(0.96); }
+    .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .btn-dismiss { background: #e05555; color: #fff; }
+    .btn-approve { background: #4cbb6c; color: #fff; }
+
+    /* Empty / loading */
+    .empty {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: #555;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .spinner {
+      width: 38px; height: 38px;
+      border: 4px solid #bbb;
+      border-top-color: #333;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+    @keyframes spin   { to { transform:rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <h1>Admin (dashboard)</h1>
+
+  <div class="feed" id="feed">
+    <div class="empty"><div class="spinner"></div>Loading...</div>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, onSnapshot, doc, updateDoc, query, orderBy }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ── PASTE YOUR FIREBASE CONFIG HERE ──────────────────────────────────────
+  const firebaseConfig = {
+    apiKey: "AIzaSyCSdoag6gzTX-MKxDIZWJyPlcM1hkj_cxs",
+    authDomain: "gallery-c5a1e.firebaseapp.com",
+    projectId: "gallery-c5a1e",
+    storageBucket: "gallery-c5a1e.firebasestorage.app",
+    messagingSenderId: "175792322603",
+    appId: "1:175792322603:web:1a8c0bc71c4476b308926e"
+  };
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // Only show pending submissions — admin acts on these
+  const q = query(
+    collection(db, 'submissions'),
+    orderBy('createdAt', 'desc')
+  );
+
+  onSnapshot(q, snap => {
+    // Only show pending, sorted by newest first
+    const docs = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(d => d.status === 'pending');
+    render(docs);
+  });
+
+  function render(list) {
+    const feed = document.getElementById('feed');
+
+    if (list.length === 0) {
+      feed.innerHTML = `<div class="empty">✅ All caught up!<br/>No pending submissions.</div>`;
+      return;
+    }
+
+    feed.innerHTML = list.map((item, i) => `
+      <div class="card" style="animation-delay:${i*0.06}s">
+        ${item.fileType === 'video'
+            ? `<video src="${item.mediaUrl}" controls style="width:100%;max-height:300px;display:block;background:#000;"></video>`
+            : `<img src="${item.mediaUrl}" alt="${item.nickname}" loading="lazy" style="width:100%;max-height:300px;object-fit:cover;display:block;"/>`
+          }
+        <div class="card-body">
+          <div class="card-name">${item.nickname}</div>
+          <div class="card-btns">
+            <button class="btn btn-dismiss" onclick="setStatus('${item.id}','dismissed',this)">Dismiss</button>
+            <button class="btn btn-approve" onclick="setStatus('${item.id}','approved',this)">Approve</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.setStatus = async (id, status, btn) => {
+    const btns = btn.closest('.card-btns').querySelectorAll('button');
+    btns.forEach(b => { b.disabled = true; b.textContent = '...'; });
+    try {
+      await updateDoc(doc(db, 'submissions', id), { status });
+      // card disappears automatically because listener only shows pending
+    } catch(e) {
+      alert('Failed. Try again.');
+      btns.forEach(b => b.disabled = false);
+      render();
+    }
+  };
+</script>
+</body>
+</html>
