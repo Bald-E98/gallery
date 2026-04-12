@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Photo & Video Submit</title>
+  <title>Photo Submit</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,7 +29,7 @@
       background:radial-gradient(circle,rgba(252,108,143,.10) 0%,transparent 70%);
       pointer-events:none; z-index:0;
     }
-    .container { width:100%; max-width:520px; position:relative; z-index:1; }
+    .container { width:100%; max-width:560px; position:relative; z-index:1; }
     header { text-align:center; margin-bottom:2.5rem; animation:fadeDown 0.6s ease both; }
     header h1 {
       font-family:'Syne',sans-serif; font-weight:800; font-size:2.2rem;
@@ -45,7 +45,7 @@
 
     /* Upload Zone */
     .upload-zone {
-      border:2px dashed var(--border); border-radius:14px; padding:2.5rem 1.5rem;
+      border:2px dashed var(--border); border-radius:14px; padding:2.2rem 1.5rem;
       text-align:center; cursor:pointer;
       transition:border-color 0.25s,background 0.25s; position:relative; overflow:hidden;
     }
@@ -55,33 +55,76 @@
     .upload-zone input[type="file"] {
       position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;
     }
-    .upload-icon { font-size:2.5rem; margin-bottom:0.8rem; display:block; }
+    .upload-icon { font-size:2.2rem; margin-bottom:0.6rem; display:block; }
     .upload-zone p { color:var(--muted); font-size:0.9rem; }
     .upload-zone strong { color:var(--accent); }
+    .count-badge {
+      display:inline-block; margin-top:0.6rem;
+      font-size:0.75rem; font-weight:600; padding:0.2rem 0.8rem;
+      border-radius:20px; border:1px solid var(--accent);
+      color:var(--accent); background:rgba(124,108,252,0.08);
+    }
 
-    /* Preview */
-    .preview-wrap { display:none; flex-direction:column; align-items:center; gap:1rem; }
-    .preview-wrap.visible { display:flex; }
-    .preview-wrap img, .preview-wrap video {
-      width:100%; max-height:280px; object-fit:cover;
-      border-radius:12px; border:1px solid var(--border);
+    /* Photo Grid Preview */
+    .photo-grid-section { display:none; flex-direction:column; gap:1rem; }
+    .photo-grid-section.visible { display:flex; }
+    .photo-grid {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:0.6rem;
     }
-    .preview-wrap video { object-fit:contain; background:#000; }
-    .change-btn {
-      background:none; border:1px solid var(--border); color:var(--muted);
-      font-family:'DM Sans',sans-serif; font-size:0.82rem; padding:0.35rem 1rem;
-      border-radius:20px; cursor:pointer; transition:border-color 0.2s,color 0.2s;
+    .photo-thumb {
+      position:relative; aspect-ratio:1/1; border-radius:10px; overflow:hidden;
+      border:1px solid var(--border); background:#000;
+      animation:popIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275) both;
     }
-    .change-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .photo-thumb img {
+      width:100%; height:100%; object-fit:cover; display:block;
+    }
+    .photo-thumb .remove-btn {
+      position:absolute; top:4px; right:4px;
+      width:22px; height:22px; border-radius:50%;
+      background:rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.2);
+      color:#fff; font-size:0.7rem; line-height:1;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:background 0.2s;
+      backdrop-filter:blur(4px);
+    }
+    .photo-thumb .remove-btn:hover { background:rgba(252,108,143,0.8); }
+    .photo-thumb .thumb-num {
+      position:absolute; bottom:4px; left:4px;
+      font-size:0.65rem; font-weight:700;
+      background:rgba(0,0,0,0.6); color:#fff;
+      padding:1px 5px; border-radius:6px;
+      backdrop-filter:blur(4px);
+    }
 
-    /* Type badge */
-    .type-badge {
-      display:inline-flex; align-items:center; gap:0.4rem;
-      font-size:0.75rem; font-weight:600; padding:0.25rem 0.7rem;
-      border-radius:20px; border:1px solid var(--border); color:var(--muted);
+    /* Add more button inside grid */
+    .add-more-cell {
+      aspect-ratio:1/1; border-radius:10px;
+      border:2px dashed var(--border); background:transparent;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      cursor:pointer; transition:border-color 0.2s,background 0.2s;
+      color:var(--muted); font-size:0.75rem; gap:0.3rem;
+      position:relative; overflow:hidden;
     }
-    .type-badge.image { border-color:var(--accent); color:var(--accent); }
-    .type-badge.video { border-color:#fc6c8f; color:#fc6c8f; }
+    .add-more-cell input[type="file"] {
+      position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;
+    }
+    .add-more-cell:hover { border-color:var(--accent); background:rgba(124,108,252,0.05); color:var(--accent); }
+    .add-more-cell span { font-size:1.4rem; }
+    .add-more-cell small { font-size:0.7rem; }
+
+    /* Photo count info */
+    .photo-count-info {
+      display:flex; align-items:center; justify-content:space-between;
+      font-size:0.82rem; color:var(--muted);
+    }
+    .photo-count-info strong { color:var(--text); }
+    .clear-all-btn {
+      background:none; border:none; color:var(--muted); font-size:0.78rem;
+      cursor:pointer; transition:color 0.2s; font-family:'DM Sans',sans-serif;
+      text-decoration:underline;
+    }
+    .clear-all-btn:hover { color:var(--accent2); }
 
     /* Nickname grid */
     .section-label {
@@ -113,10 +156,8 @@
     .submit-btn:disabled { opacity:0.35; cursor:not-allowed; }
     .submit-btn:not(:disabled):hover { opacity:0.9; transform:translateY(-1px); }
 
-    /* Progress bar */
-    .progress-wrap {
-      display:none; flex-direction:column; gap:0.5rem;
-    }
+    /* Progress */
+    .progress-wrap { display:none; flex-direction:column; gap:0.6rem; }
     .progress-wrap.visible { display:flex; }
     .progress-bar-bg {
       width:100%; height:8px; background:var(--border); border-radius:10px; overflow:hidden;
@@ -127,6 +168,7 @@
       transition:width 0.3s ease;
     }
     .progress-label { font-size:0.8rem; color:var(--muted); text-align:center; }
+    .progress-files { font-size:0.75rem; color:var(--muted); text-align:center; }
 
     /* Success */
     .success-screen { display:none; flex-direction:column; align-items:center; text-align:center; gap:1rem; padding:2rem 0; }
@@ -138,6 +180,7 @@
     }
     .success-screen h2 { font-family:'Syne',sans-serif; font-size:1.4rem; color:var(--success); }
     .success-screen p { color:var(--muted); font-size:0.9rem; }
+    .success-screen .sub { font-size:0.82rem; color:var(--muted); opacity:0.7; }
     .again-btn {
       margin-top:0.5rem; background:none; border:1px solid var(--accent);
       color:var(--accent); font-family:'DM Sans',sans-serif; font-size:0.9rem;
@@ -157,31 +200,34 @@
     @keyframes fadeUp   { from{opacity:0;transform:translateY(16px)}  to{opacity:1;transform:none} }
     @keyframes spin     { to{transform:rotate(360deg)} }
     @keyframes pop      { from{transform:scale(0.4);opacity:0} to{transform:scale(1);opacity:1} }
+    @keyframes popIn    { from{transform:scale(0.7);opacity:0} to{transform:scale(1);opacity:1} }
   </style>
 </head>
 <body>
 <div class="container">
   <header>
     <h1>Submit</h1>
-    <p>Upload a photo or video and tag the people in it</p>
+    <p>Upload up to 7 photos and tag the people in them</p>
   </header>
 
   <div class="card" id="mainCard">
 
-    <!-- Upload Zone -->
+    <!-- Upload Zone (shown when 0 photos) -->
     <div id="uploadZone" class="upload-zone">
-      <input type="file" id="fileInput" accept="image/*,video/*" />
-      <span class="upload-icon">📷🎥</span>
+      <input type="file" id="fileInput" accept="image/*" multiple />
+      <span class="upload-icon">📷</span>
       <p><strong>Click to upload</strong> or drag & drop</p>
-      <p style="margin-top:0.3rem;font-size:0.8rem;">Photos & Videos supported</p>
+      <p style="margin-top:0.3rem;font-size:0.8rem;">Select up to 7 photos at once</p>
+      <span class="count-badge">Max 7 photos</span>
     </div>
 
-    <!-- Preview -->
-    <div class="preview-wrap" id="previewWrap">
-      <img id="previewImg" src="" alt="Preview" style="display:none"/>
-      <video id="previewVid" controls style="display:none"></video>
-      <span class="type-badge" id="typeBadge"></span>
-      <button class="change-btn" onclick="resetUpload()">✕ Change file</button>
+    <!-- Photo Grid Preview (shown when ≥1 photo) -->
+    <div class="photo-grid-section" id="photoGridSection">
+      <div class="photo-count-info">
+        <span><strong id="photoCountText">0</strong> photo(s) selected</span>
+        <button class="clear-all-btn" onclick="clearAll()">Clear all</button>
+      </div>
+      <div class="photo-grid" id="photoGrid"></div>
     </div>
 
     <!-- Nickname Picker -->
@@ -193,7 +239,8 @@
     <!-- Progress -->
     <div class="progress-wrap" id="progressWrap">
       <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
-      <div class="progress-label" id="progressLabel">Uploading... 0%</div>
+      <div class="progress-label" id="progressLabel">Uploading...</div>
+      <div class="progress-files" id="progressFiles"></div>
     </div>
 
     <!-- Submit -->
@@ -205,7 +252,8 @@
     <div class="success-screen" id="successScreen">
       <div class="success-icon">✓</div>
       <h2>Submitted!</h2>
-      <p>Your file has been sent for review.</p>
+      <p id="successMsg">Your photos have been sent for review.</p>
+      <p class="sub" id="successSub"></p>
       <button class="again-btn" onclick="resetAll()">Submit another</button>
     </div>
 
@@ -226,10 +274,9 @@
     appId: "1:175792322603:web:1a8c0bc71c4476b308926e"
   };
 
-  // ── Cloudinary config ─────────────────────────────────────────────────────
-  const CLOUD_NAME   = "dsgweqqew";
-  const UPLOAD_PRESET = "ml_default"; // your unsigned preset
-  // ─────────────────────────────────────────────────────────────────────────
+  const CLOUD_NAME    = "dsgweqqew";
+  const UPLOAD_PRESET = "ml_default";
+  const MAX_PHOTOS    = 7;
 
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
@@ -240,18 +287,16 @@
     "Nived","Chinmay","Arjun","Adikrishna","Devanand","NandhuKrishna"
   ];
 
-  let selectedFile = null;
-  let selectedNicks = []; // supports multiple selections
-  let fileType     = null; // 'image' or 'video'
+  let selectedFiles = []; // array of File objects
+  let selectedNicks = [];
 
-  // Build nickname buttons
+  // ── Build nickname buttons ────────────────────────────────────────────────
   const grid = document.getElementById('nicknameGrid');
   nicknames.forEach(name => {
     const btn = document.createElement('button');
     btn.className = 'nick-btn';
     btn.textContent = name;
     btn.onclick = () => {
-      // Toggle selection
       if (selectedNicks.includes(name)) {
         selectedNicks = selectedNicks.filter(n => n !== name);
         btn.classList.remove('selected');
@@ -264,129 +309,228 @@
     grid.appendChild(btn);
   });
 
+  // ── File input wiring ─────────────────────────────────────────────────────
   const fileInput  = document.getElementById('fileInput');
   const uploadZone = document.getElementById('uploadZone');
 
-  fileInput.addEventListener('change', e => { if(e.target.files[0]) handleFile(e.target.files[0]); });
+  fileInput.addEventListener('change', e => {
+    addFiles(Array.from(e.target.files));
+    e.target.value = ''; // reset so same file can be re-added after remove
+  });
+
   uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
   uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
   uploadZone.addEventListener('drop', e => {
     e.preventDefault(); uploadZone.classList.remove('dragover');
-    if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    addFiles(Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')));
   });
 
-  function handleFile(file) {
-    selectedFile = file;
-    fileType = file.type.startsWith('video/') ? 'video' : 'image';
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const img = document.getElementById('previewImg');
-      const vid = document.getElementById('previewVid');
-      const badge = document.getElementById('typeBadge');
-      if (fileType === 'video') {
-        vid.src = ev.target.result; vid.style.display = ''; img.style.display = 'none';
-        badge.textContent = '🎥 Video'; badge.className = 'type-badge video';
-      } else {
-        img.src = ev.target.result; img.style.display = ''; vid.style.display = 'none';
-        badge.textContent = '📷 Photo'; badge.className = 'type-badge image';
-      }
-      uploadZone.style.display = 'none';
-      document.getElementById('previewWrap').classList.add('visible');
-      checkReady();
-    };
-    reader.readAsDataURL(file);
+  // ── Add files logic ───────────────────────────────────────────────────────
+  function addFiles(newFiles) {
+    const remaining = MAX_PHOTOS - selectedFiles.length;
+    if (remaining <= 0) {
+      alert(`You can only upload up to ${MAX_PHOTOS} photos.`); return;
+    }
+    const toAdd = newFiles.slice(0, remaining);
+    if (newFiles.length > remaining) {
+      alert(`Only ${remaining} more photo(s) can be added (max ${MAX_PHOTOS}). First ${remaining} selected.`);
+    }
+    toAdd.forEach(f => selectedFiles.push(f));
+    renderGrid();
+    checkReady();
   }
 
-  function checkReady() {
-    document.getElementById('submitBtn').disabled = !(selectedFile && selectedNicks.length > 0);
+  // ── Render photo grid ─────────────────────────────────────────────────────
+  function renderGrid() {
+    const photoGrid    = document.getElementById('photoGrid');
+    const photoSection = document.getElementById('photoGridSection');
+    const uploadZoneEl = document.getElementById('uploadZone');
+    const countText    = document.getElementById('photoCountText');
+
+    photoGrid.innerHTML = '';
+    countText.textContent = selectedFiles.length;
+
+    if (selectedFiles.length === 0) {
+      photoSection.classList.remove('visible');
+      uploadZoneEl.style.display = '';
+      return;
+    }
+
+    photoSection.classList.add('visible');
+    uploadZoneEl.style.display = 'none';
+
+    // Render thumbnails
+    selectedFiles.forEach((file, idx) => {
+      const thumb = document.createElement('div');
+      thumb.className = 'photo-thumb';
+      thumb.style.animationDelay = (idx * 0.04) + 's';
+
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      img.alt = file.name;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-btn';
+      removeBtn.textContent = '✕';
+      removeBtn.title = 'Remove';
+      removeBtn.onclick = () => removePhoto(idx);
+
+      const numLabel = document.createElement('span');
+      numLabel.className = 'thumb-num';
+      numLabel.textContent = idx + 1;
+
+      thumb.appendChild(img);
+      thumb.appendChild(removeBtn);
+      thumb.appendChild(numLabel);
+      photoGrid.appendChild(thumb);
+    });
+
+    // "Add more" cell (only if under max)
+    if (selectedFiles.length < MAX_PHOTOS) {
+      const addCell = document.createElement('div');
+      addCell.className = 'add-more-cell';
+
+      const addInput = document.createElement('input');
+      addInput.type = 'file';
+      addInput.accept = 'image/*';
+      addInput.multiple = true;
+      addInput.addEventListener('change', e => {
+        addFiles(Array.from(e.target.files));
+        e.target.value = '';
+      });
+
+      const icon = document.createElement('span');
+      icon.textContent = '+';
+
+      const label = document.createElement('small');
+      label.textContent = `Add more`;
+
+      addCell.appendChild(addInput);
+      addCell.appendChild(icon);
+      addCell.appendChild(label);
+      photoGrid.appendChild(addCell);
+    }
   }
 
-  window.resetUpload = function() {
-    selectedFile = null; fileType = null;
-    fileInput.value = '';
-    document.getElementById('previewImg').src = '';
-    document.getElementById('previewVid').src = '';
-    uploadZone.style.display = '';
-    document.getElementById('previewWrap').classList.remove('visible');
+  function removePhoto(idx) {
+    URL.revokeObjectURL(document.querySelector(`.photo-thumb:nth-child(${idx+1}) img`)?.src || '');
+    selectedFiles.splice(idx, 1);
+    renderGrid();
+    checkReady();
+  }
+
+  window.clearAll = function() {
+    selectedFiles = [];
+    renderGrid();
     checkReady();
   };
 
+  // ── Ready check ───────────────────────────────────────────────────────────
+  function checkReady() {
+    document.getElementById('submitBtn').disabled = !(selectedFiles.length > 0 && selectedNicks.length > 0);
+  }
+
+  // ── Reset ─────────────────────────────────────────────────────────────────
   window.resetAll = function() {
+    selectedFiles = [];
     selectedNicks = [];
     document.querySelectorAll('.nick-btn').forEach(b => b.classList.remove('selected'));
     document.getElementById('successScreen').classList.remove('visible');
     document.getElementById('nicknameSection').style.display = '';
     document.getElementById('submitBtn').style.display = '';
     document.getElementById('progressWrap').classList.remove('visible');
-    resetUpload();
+    renderGrid();
+    checkReady();
   };
 
-  window.handleSubmit = async function() {
-    if (!selectedFile || selectedNicks.length === 0) return;
+  // ── Upload single file to Cloudinary ─────────────────────────────────────
+  function uploadToCloudinary(file, onProgress) {
+    return new Promise((resolve, reject) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', UPLOAD_PRESET);
 
-    const btn = document.getElementById('submitBtn');
-    const progressWrap = document.getElementById('progressWrap');
-    const progressFill = document.getElementById('progressFill');
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`);
+      xhr.upload.onprogress = e => {
+        if (e.lengthComputable) onProgress(e.loaded / e.total);
+      };
+      xhr.onload = () => {
+        if (xhr.status === 200) resolve(JSON.parse(xhr.responseText).secure_url);
+        else reject(new Error('Cloudinary upload failed'));
+      };
+      xhr.onerror = () => reject(new Error('Network error'));
+      xhr.send(formData);
+    });
+  }
+
+  // ── Submit handler ────────────────────────────────────────────────────────
+  window.handleSubmit = async function() {
+    if (!selectedFiles.length || !selectedNicks.length) return;
+
+    const btn           = document.getElementById('submitBtn');
+    const progressWrap  = document.getElementById('progressWrap');
+    const progressFill  = document.getElementById('progressFill');
     const progressLabel = document.getElementById('progressLabel');
+    const progressFiles = document.getElementById('progressFiles');
 
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Uploading...';
     progressWrap.classList.add('visible');
 
+    const total  = selectedFiles.length;
+    const progresses = new Array(total).fill(0); // per-file progress 0–1
+
+    function updateBar() {
+      const overall = progresses.reduce((a, b) => a + b, 0) / total;
+      const pct = Math.round(overall * 100);
+      progressFill.style.width = pct + '%';
+      progressLabel.textContent = `Uploading... ${pct}%`;
+    }
+
     try {
-      // Upload to Cloudinary via XHR so we can track progress
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-      formData.append('upload_preset', UPLOAD_PRESET);
-
-      const resourceType = fileType === 'video' ? 'video' : 'image';
-      const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`;
-
-      const mediaUrl = await new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', url);
-        xhr.upload.onprogress = e => {
-          if (e.lengthComputable) {
-            const pct = Math.round((e.loaded / e.total) * 100);
-            progressFill.style.width = pct + '%';
-            progressLabel.textContent = `Uploading... ${pct}%`;
-          }
-        };
-        xhr.onload = () => {
-          if (xhr.status === 200) {
-            const res = JSON.parse(xhr.responseText);
-            resolve(res.secure_url);
-          } else {
-            reject(new Error('Cloudinary upload failed'));
-          }
-        };
-        xhr.onerror = () => reject(new Error('Network error'));
-        xhr.send(formData);
-      });
-
-      progressLabel.textContent = 'Saving...';
-      progressFill.style.width = '100%';
-
-      // Save to Firestore - one doc per selected nickname
-      await Promise.all(selectedNicks.map(nickname =>
-        addDoc(collection(db, 'submissions'), {
-          mediaUrl,
-          fileType,
-          nickname,
-          status: 'pending',
-          createdAt: serverTimestamp()
+      // Upload all files in parallel
+      const uploadPromises = selectedFiles.map((file, i) =>
+        uploadToCloudinary(file, p => {
+          progresses[i] = p;
+          updateBar();
+          const done = progresses.filter(p => p === 1).length;
+          progressFiles.textContent = `${done} / ${total} photos uploaded`;
         })
-      ));
+      );
+
+      const mediaUrls = await Promise.all(uploadPromises);
+      progressLabel.textContent = 'Saving to database...';
+      progressFill.style.width = '100%';
+      progressFiles.textContent = `All ${total} photos uploaded`;
+
+      // Save to Firestore: one doc per (photo × nickname)
+      const writes = [];
+      mediaUrls.forEach(mediaUrl => {
+        selectedNicks.forEach(nickname => {
+          writes.push(addDoc(collection(db, 'submissions'), {
+            mediaUrl,
+            fileType: 'image',
+            nickname,
+            status: 'pending',
+            createdAt: serverTimestamp()
+          }));
+        });
+      });
+      await Promise.all(writes);
 
       // Show success
+      document.getElementById('successMsg').textContent =
+        `${total} photo${total > 1 ? 's' : ''} submitted successfully!`;
+      document.getElementById('successSub').textContent =
+        `Tagged: ${selectedNicks.join(', ')}`;
       document.getElementById('nicknameSection').style.display = 'none';
       btn.style.display = 'none';
-      document.getElementById('previewWrap').classList.remove('visible');
-      uploadZone.style.display = 'none';
+      document.getElementById('photoGridSection').classList.remove('visible');
       progressWrap.classList.remove('visible');
       document.getElementById('successScreen').classList.add('visible');
 
-    } catch(err) {
+    } catch (err) {
       console.error(err);
       alert('Upload failed. Please try again.');
       btn.disabled = false;
@@ -396,5 +540,4 @@
   };
 </script>
 </body>
-  </html>
-  
+</html>
